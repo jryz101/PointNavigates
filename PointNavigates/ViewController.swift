@@ -27,6 +27,10 @@ class ViewController: UIViewController, MGLMapViewDelegate {
         //Adds a view to the end of the receiver’s list of subviews
         view.addSubview(mapView)
         
+        //The receiver’s delegate
+        mapView.delegate = self
+        //Get user location
+        mapView.showsUserLocation = true
         
     }
 }
