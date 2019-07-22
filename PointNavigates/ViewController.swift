@@ -22,6 +22,9 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     //Navigate UIButton
     var navigateButton: UIButton!
     
+    //Route object
+    var directionsRoute: Route?
+    
     
     
     
@@ -105,6 +108,42 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     @objc func navigateButtonWasPressed(_ sender: UIButton) {
     
     }
+    
+    
+    //Calculate route function
+    func calculateRoute(from originCoor: CLLocationCoordinate2D, to destinationCoor: CLLocationCoordinate2D, completion: @escaping (Route?, Error?)->Void){
+        
+        //A Waypoint object indicates a location along a route. It may be the route’s origin or destination, or it may be another location that the route visits. A waypoint object indicates the location’s geographic location along with other optional information, such as a name or the user’s direction approaching the waypoint. You create a RouteOptions object using waypoint objects and also receive waypoint objects in the completion handler of the Directions.calculate(_:completionHandler:) method
+        let origin = Waypoint(coordinate: originCoor, coordinateAccuracy: -1, name: "Start")
+        let destination = Waypoint(coordinate: destinationCoor, coordinateAccuracy: -1, name: "Finish")
+        
+        //A NavigationRouteOptions object specifies turn-by-turn-optimized criteria for results returned by the Mapbox Directions API.
+        let options = NavigationRouteOptions(waypoints: [origin, destination], profileIdentifier: .automobileAvoidingTraffic)
+        
+        
+        //Begins asynchronously calculating routes using the given options and delivers the results to a closure
+        _ = Directions.shared.calculate(options, completionHandler: { (waypoints, routes, error) in
+            
+            //MARK: - COMPLETION BLOCK
+            
+            //Set directionsRoute object equals to routes?.first
+            self.directionsRoute = routes?.first
+            
+            //A rectangular area as measured on a two-dimensional map projection
+            let coordinateBounds = MGLCoordinateBounds(sw: destinationCoor, ne: originCoor)
+            
+            //The inset distances for views
+            let insets = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
+            
+            //Returns the camera that best fits the given coordinate bounds, optionally with some additional padding on each side
+            let routeCam = self.mapView.cameraThatFitsCoordinateBounds(coordinateBounds, edgePadding: insets)
+            
+            //Moves the viewpoint to a different location with respect to the map with an optional transition animation
+            self.mapView.setCamera(routeCam, animated: true)
+            
+        })
+    }
 }
+
 
 
