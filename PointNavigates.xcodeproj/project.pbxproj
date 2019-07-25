@@ -85,7 +85,6 @@
 				8E3A5B4E6E123E2D26AAB6B2 /* Pods-PointNavigates.debug.xcconfig */,
 				CC74E9D9EDBBB2079B0CA234 /* Pods-PointNavigates.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -123,6 +122,11 @@
 				TargetAttributes = {
 					8A27884A22D7F53700DADDF7 = {
 						CreatedOnToolsVersion = 10.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};

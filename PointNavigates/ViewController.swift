@@ -110,6 +110,17 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     //Button action
     @objc func navigateButtonWasPressed(_ sender: UIButton) {
         
+        //Sets the mode used to track the user location, with an optional transition.
+        mapView.setUserTrackingMode(.none, animated: true)
+        
+        //Navigation block
+        let annotation = MGLPointAnnotation()
+        annotation.coordinate = pavilionCoordinate
+        annotation.title = "Start Navigation"
+        mapView.addAnnotation(annotation)
+        
+        
+        //Calculate function block
         calculateRoute(from: mapView.userLocation!.coordinate, to: pavilionCoordinate) { (route, error) in
             if error != nil {
                 print("Incoming Error")
@@ -185,5 +196,19 @@ class ViewController: UIViewController, MGLMapViewDelegate {
             mapView.style?.addSource(source)
             mapView.style?.addLayer(lineStyle)
         }
+        
+    }
+    //Returns a Boolean value indicating whether the annotation is able to display extra information in a callout bubble
+    func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
+        return true
+    }
+    
+    //Tells the delegate that the user tapped on an annotation’s callout view
+    func mapView(_ mapView: MGLMapView, tapOnCalloutFor annotation: MGLAnnotation) {
+        //NavigationViewController is a fully-featured turn-by-turn navigation UI
+        let navigationVC = NavigationViewController(for: directionsRoute!)
+        //Presents a view controller modally.
+        present(navigationVC, animated: true, completion: nil)
+        
     }
 }
