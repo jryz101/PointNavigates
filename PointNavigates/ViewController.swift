@@ -25,6 +25,9 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     //Route object
     var directionsRoute: Route?
     
+    //Pavilion Coordinate(Malaysia))
+    let pavilionCoordinate = CLLocationCoordinate2D(latitude: 3.149314, longitude: 101.713491)
+    
     
     
     
@@ -66,7 +69,7 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     
     
     
-    //MARK: BUTTON FUNCTION
+    //MARK: BUTTON  OBJECT
     
     //addButton function
     func addButton() {
@@ -106,7 +109,12 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     
     //Button action
     @objc func navigateButtonWasPressed(_ sender: UIButton) {
-    
+        
+        calculateRoute(from: mapView.userLocation!.coordinate, to: pavilionCoordinate) { (route, error) in
+            if error != nil {
+                print("Incoming Error")
+            }
+        }
     }
     
     
@@ -129,6 +137,8 @@ class ViewController: UIViewController, MGLMapViewDelegate {
             //Set directionsRoute object equals to routes?.first
             self.directionsRoute = routes?.first
             
+            self.drawRoute(route: self.directionsRoute!)
+            
             //A rectangular area as measured on a two-dimensional map projection
             let coordinateBounds = MGLCoordinateBounds(sw: destinationCoor, ne: originCoor)
             
@@ -143,7 +153,37 @@ class ViewController: UIViewController, MGLMapViewDelegate {
             
         })
     }
+    
+    //Draw route function takes Route as parameter
+    func drawRoute(route: Route){
+        
+        //The number of coordinates.
+        guard route.coordinateCount > 0 else { return }
+        //An array of geographic coordinates defining the path of the route from start to finish
+        var routeCoordinates = route.coordinates!
+        //An `MGLPolylineFeature` object associates a polyline shape with an optional identifier and attributes
+        let polyline = MGLPolylineFeature(coordinates: &routeCoordinates, count: route.coordinateCount)
+        
+        //Optional binding methods for casting mapView source as MGLShapeSource.
+        if let source = mapView.style?.source(withIdentifier: "route-source") as? MGLShapeSource {
+            //The contents of the source. A shape can represent a GeoJSON geometry, a feature, or a collection of features
+            source.shape = polyline
+            
+        }else{
+            
+            //`MGLShapeSource` is a map content source that supplies vector shapes to be shown on the map. The shapes may be instances of `MGLShape` or `MGLFeature`, or they may be defined by local or external GeoJSON code. A shape source is added to an `MGLStyle` object along with an `MGLVectorStyleLayer` object. The vector style layer defines the appearance of any content supplied by the shape source. You can update a shape source by setting its `shape` or `URL` property
+            let source = MGLShapeSource(identifier: "route-source", features: [polyline], options: nil)
+            
+            //An `MGLLineStyleLayer` is a style layer that renders one or more stroked polylines on the map.
+            let lineStyle = MGLLineStyleLayer(identifier: "route-style", source: source)
+            
+            //An expression for use in a comparison predicate
+            lineStyle.lineColor = NSExpression(forConstantValue: #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1))
+            lineStyle.lineWidth = NSExpression(forConstantValue: 3)
+            
+            //Add source to mapView
+            mapView.style?.addSource(source)
+            mapView.style?.addLayer(lineStyle)
+        }
+    }
 }
-
-
-
